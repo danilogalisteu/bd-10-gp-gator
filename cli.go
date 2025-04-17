@@ -29,3 +29,19 @@ func (c *commands) run(s *state, cmd command) error {
 	}
 	return handler(s, cmd)
 }
+
+func handlerLogin(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("login command requires one argument; provided %v", len(cmd.args))
+	}
+
+	user := cmd.args[0]
+	err := config.SetUser(user)
+	if err != nil {
+		return err
+	}
+	s.cfg.CurrentUserName = user
+	fmt.Printf("User has been set: %s\n", user)
+
+	return nil
+}
