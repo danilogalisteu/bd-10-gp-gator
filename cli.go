@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"internal/config"
 	"internal/database"
+	"internal/rss"
 	"os"
 	"time"
 
@@ -114,6 +115,21 @@ func handlerUsers(s *state, cmd command) error {
 		}
 		fmt.Printf("* %s\n", name)
 	}
+
+	return nil
+}
+
+func handlerAggregator(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("users command doesn't require arguments; provided %v", len(cmd.args))
+	}
+
+	feedURL := "https://www.wagslane.dev/index.xml"
+	feed, err := rss.FetchFeed(context.Background(), feedURL)
+	if err != nil {
+		return err
+	}
+	fmt.Println(feed)
 
 	return nil
 }
