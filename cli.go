@@ -81,3 +81,18 @@ func handlerRegister(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerReset(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("reset command doesn't require arguments; provided %v", len(cmd.args))
+	}
+
+	err := s.db.ResetUsers(context.Background())
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Println("User table has been reset")
+
+	return nil
+}
