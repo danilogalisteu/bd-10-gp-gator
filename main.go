@@ -41,6 +41,7 @@ func main() {
 	}
 
 	handlers.register("login", handlerLogin)
+	handlers.register("register", handlerRegister)
 
 	if len(os.Args) < 2 {
 		fmt.Println("missing arguments, exiting...")

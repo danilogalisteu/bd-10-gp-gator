@@ -44,12 +44,40 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	s.cfg.CurrentUserName = dbUser.Name
-	err := config.SetUser(user)
+	err = config.SetUser(dbUser.Name)
 	if err != nil {
 		return err
 	}
-	s.cfg.CurrentUserName = user
-	fmt.Printf("User has been set: %s\n", user)
+
+	fmt.Printf("User has been set: %s\n", dbUser.Name)
+
+	return nil
+}
+
+func handlerRegister(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("register command requires one argument; provided %v", len(cmd.args))
+	}
+
+	user := cmd.args[0]
+	dbUser, err := s.db.CreateUser(context.Background(),
+		database.CreateUserParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Name:      user,
+		})
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("User has been created: %s\n", dbUser.Name)
+
+	s.cfg.CurrentUserName = dbUser.Name
+	err = config.SetUser(dbUser.Name)
+	if err != nil {
+		return err
+	}
 
 	return nil
 }
