@@ -1,17 +1,19 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"internal/config"
+	"internal/database"
+	"os"
+	"time"
+
+	"github.com/google/uuid"
 )
 
-type state struct {
-	cfg *config.Config
-}
-
 type command struct {
-	name    string
-	args	[]string
+	name string
+	args []string
 }
 
 type commands struct {
@@ -36,6 +38,12 @@ func handlerLogin(s *state, cmd command) error {
 	}
 
 	user := cmd.args[0]
+	dbUser, err := s.db.GetUser(context.Background(), user)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	s.cfg.CurrentUserName = dbUser.Name
 	err := config.SetUser(user)
 	if err != nil {
 		return err

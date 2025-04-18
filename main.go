@@ -1,10 +1,21 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"internal/config"
+	"internal/database"
 	"os"
+
+	_ "github.com/lib/pq"
 )
+
+type state struct {
+	db  *database.Queries
+	cfg *config.Config
+}
+
+const dbURL = "postgres://postgres:abc123@localhost:5432/gator?sslmode=disable"
 
 func main() {
 	cfg, err := config.Read()
@@ -14,7 +25,14 @@ func main() {
 	}
 	fmt.Println(cfg)
 
+	db, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		fmt.Println(err)
+		os.Exit(1)
+	}
+
 	st := state{
+		db:  database.New(db),
 		cfg: &cfg,
 	}
 
