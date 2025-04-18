@@ -96,3 +96,24 @@ func handlerReset(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerUsers(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("users command doesn't require arguments; provided %v", len(cmd.args))
+	}
+
+	dbUsers, err := s.db.GetUsers(context.Background())
+	if err != nil {
+		os.Exit(1)
+	}
+
+	for _, user := range dbUsers {
+		name := user.Name
+		if name == s.cfg.CurrentUserName {
+			name += " (current)"
+		}
+		fmt.Printf("* %s\n", name)
+	}
+
+	return nil
+}
