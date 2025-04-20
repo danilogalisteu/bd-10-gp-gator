@@ -220,7 +220,7 @@ func handlerAddFollow(s *state, cmd command, dbUser database.User) error {
 
 func handlerFollowing(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) != 0 {
-		return fmt.Errorf("following command requires zero arguments; provided %v", len(cmd.args))
+		return fmt.Errorf("following command doesn't require arguments; provided %v", len(cmd.args))
 	}
 
 	dbFollows, err := s.db.GetFeedFollowsForUser(context.Background(), dbUser.ID)
