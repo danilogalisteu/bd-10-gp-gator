@@ -7,6 +7,7 @@ import (
 	"internal/database"
 	"internal/rss"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -140,7 +141,30 @@ func scrapeFeeds(s *state) error {
 	}
 
 	for _, item := range feed.Channel.Item {
-		fmt.Println(item.Title)
+		publishedTime, err := time.Parse(time.RFC1123Z, item.PubDate)
+		if err != nil {
+			return err
+		}
+
+		dbPost, err := s.db.CreatePost(context.Background(),
+			database.CreatePostParams{
+				ID:          uuid.New(),
+				CreatedAt:   time.Now(),
+				UpdatedAt:   time.Now(),
+				Title:       item.Title,
+				Url:         item.Link,
+				Description: item.Description,
+				PublishedAt: publishedTime,
+				FeedID:      dbFeed.ID,
+			})
+		if err != nil {
+			if !strings.Contains(err.Error(), "duplicate key value violates unique constraint") {
+				return err
+			}
+			continue
+		}
+
+		fmt.Printf("Post has been created: %s\n", dbPost)
 	}
 
 	return nil
