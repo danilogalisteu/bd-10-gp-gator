@@ -7,6 +7,7 @@ import (
 	"internal/database"
 	"internal/rss"
 	"os"
+	"strconv"
 	"strings"
 	"time"
 
@@ -309,6 +310,38 @@ func handlerUnfollow(s *state, cmd command, dbUser database.User) error {
 	}
 
 	fmt.Printf("Feed %s was unfollowed\n", url)
+
+	return nil
+}
+
+func handlerBrowse(s *state, cmd command, dbUser database.User) error {
+	if len(cmd.args) > 1 {
+		return fmt.Errorf("browse command requires at most one argument; provided %v", len(cmd.args))
+	}
+
+	limit := 2
+	if len(cmd.args) == 1 {
+		var err error
+		limit, err = strconv.Atoi(cmd.args[0])
+		if err != nil {
+			os.Exit(1)
+		}
+	}
+
+	dbPosts, err := s.db.GetPosts(context.Background(),
+		database.GetPostsParams{
+			UserID: dbUser.ID,
+			Limit:  int32(limit),
+		})
+	if err != nil {
+		os.Exit(1)
+	}
+
+	for _, dbPost := range dbPosts {
+		fmt.Printf("Published at %s\n", dbPost.PublishedAt)
+		fmt.Printf("Post '%s' <%s>\n", dbPost.Title, dbPost.Url)
+		fmt.Printf("Description: %s\n", dbPost.Description)
+	}
 
 	return nil
 }
