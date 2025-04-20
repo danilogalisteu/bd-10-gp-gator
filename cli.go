@@ -213,3 +213,25 @@ func handlerAddFollow(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFollowing(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("following command requires zero arguments; provided %v", len(cmd.args))
+	}
+
+	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	dbFollows, err := s.db.GetFeedFollowsForUser(context.Background(), dbUser.ID)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	for _, dbFollow := range dbFollows {
+		fmt.Printf("Following '%s'\n", dbFollow.FeedName)
+	}
+
+	return nil
+}

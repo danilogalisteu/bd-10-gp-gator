@@ -47,6 +47,7 @@ func main() {
 	handlers.register("addfeed", handlerAddFeed)
 	handlers.register("feeds", handlerFeeds)
 	handlers.register("follow", handlerAddFollow)
+	handlers.register("following", handlerFollowing)
 
 	if len(os.Args) < 2 {
 		fmt.Println("missing arguments, exiting...")
