@@ -182,3 +182,36 @@ func handlerFeeds(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAddFollow(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("follow command requires one arguments; provided %v", len(cmd.args))
+	}
+
+	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	url := cmd.args[0]
+	dbFeed, err := s.db.GetFeed(context.Background(), url)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	dbFollow, err := s.db.CreateFeedFollow(context.Background(),
+		database.CreateFeedFollowParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			UserID:    dbUser.ID,
+			FeedID:    dbFeed.ID,
+		})
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("User %s is now following feed '%s'\n", dbFollow.UserName, dbFollow.FeedName)
+
+	return nil
+}
