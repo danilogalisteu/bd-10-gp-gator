@@ -165,3 +165,20 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerFeeds(s *state, cmd command) error {
+	if len(cmd.args) != 0 {
+		return fmt.Errorf("feeds command doesn't require arguments; provided %v", len(cmd.args))
+	}
+
+	dbFeeds, err := s.db.GetFeeds(context.Background())
+	if err != nil {
+		os.Exit(1)
+	}
+
+	for _, feed := range dbFeeds {
+		fmt.Printf("[%s] '%s' at %s\n", feed.UserName.String, feed.Name, feed.Url)
+	}
+
+	return nil
+}
