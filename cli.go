@@ -119,19 +119,53 @@ func handlerUsers(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAggregator(s *state, cmd command) error {
-	if len(cmd.args) != 0 {
-		return fmt.Errorf("users command doesn't require arguments; provided %v", len(cmd.args))
-	}
-
-	feedURL := "https://www.wagslane.dev/index.xml"
-	feed, err := rss.FetchFeed(context.Background(), feedURL)
+func scrapeFeeds(s *state) error {
+	dbFeed, err := s.db.GetNextFeedToFetch(context.Background())
 	if err != nil {
 		return err
 	}
-	fmt.Println(feed)
+
+	err = s.db.MarkFeedFetched(context.Background(),
+		database.MarkFeedFetchedParams{
+			ID:        dbFeed.ID,
+			UpdatedAt: time.Now(),
+		})
+	if err != nil {
+		return err
+	}
+
+	feed, err := rss.FetchFeed(context.Background(), dbFeed.Url)
+	if err != nil {
+		return err
+	}
+
+	for _, item := range feed.Channel.Item {
+		fmt.Println(item.Title)
+	}
 
 	return nil
+}
+
+func handlerAggregator(s *state, cmd command) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("agg command requires one argument; provided %v", len(cmd.args))
+	}
+
+	timeBetweenRequests, err := time.ParseDuration(cmd.args[0])
+	if err != nil {
+		fmt.Printf("invalid duration format: %v\n", err)
+		os.Exit(1)
+	}
+
+	fmt.Printf("Collecting feeds every %s\n", timeBetweenRequests)
+
+	ticker := time.NewTicker(timeBetweenRequests)
+	for ; ; <-ticker.C {
+		err = scrapeFeeds(s)
+		if err != nil {
+			fmt.Println(err)
+		}
+	}
 }
 
 func handlerAddFeed(s *state, cmd command, dbUser database.User) error {
