@@ -134,14 +134,9 @@ func handlerAggregator(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFeed(s *state, cmd command) error {
+func handlerAddFeed(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) != 2 {
 		return fmt.Errorf("addfeed command requires two arguments; provided %v", len(cmd.args))
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		os.Exit(1)
 	}
 
 	name := cmd.args[0]
@@ -195,14 +190,9 @@ func handlerFeeds(s *state, cmd command) error {
 	return nil
 }
 
-func handlerAddFollow(s *state, cmd command) error {
+func handlerAddFollow(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) != 1 {
 		return fmt.Errorf("follow command requires one arguments; provided %v", len(cmd.args))
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		os.Exit(1)
 	}
 
 	url := cmd.args[0]
@@ -228,14 +218,9 @@ func handlerAddFollow(s *state, cmd command) error {
 	return nil
 }
 
-func handlerFollowing(s *state, cmd command) error {
+func handlerFollowing(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) != 0 {
 		return fmt.Errorf("following command requires zero arguments; provided %v", len(cmd.args))
-	}
-
-	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
-	if err != nil {
-		os.Exit(1)
 	}
 
 	dbFollows, err := s.db.GetFeedFollowsForUser(context.Background(), dbUser.ID)
@@ -248,4 +233,14 @@ func handlerFollowing(s *state, cmd command) error {
 	}
 
 	return nil
+}
+
+func middlewareLoggedIn(handler func(s *state, cmd command, user database.User) error) func(*state, command) error {
+	return func(s *state, cmd command) error {
+		dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+		if err != nil {
+			os.Exit(1)
+		}
+		return handler(s, cmd, dbUser)
+	}
 }
