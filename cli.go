@@ -133,3 +133,35 @@ func handlerAggregator(s *state, cmd command) error {
 
 	return nil
 }
+
+func handlerAddFeed(s *state, cmd command) error {
+	if len(cmd.args) != 2 {
+		return fmt.Errorf("addfeed command requires two arguments; provided %v", len(cmd.args))
+	}
+
+	dbUser, err := s.db.GetUser(context.Background(), s.cfg.CurrentUserName)
+	if err != nil {
+		os.Exit(1)
+	}
+
+	name := cmd.args[0]
+	url := cmd.args[1]
+	dbFeed, err := s.db.CreateFeed(context.Background(),
+		database.CreateFeedParams{
+			ID:        uuid.New(),
+			CreatedAt: time.Now(),
+			UpdatedAt: time.Now(),
+			Name:      name,
+			Url:       url,
+			UserID:    dbUser.ID,
+		})
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("Feed has been added: %s\n", dbFeed.Name)
+
+	fmt.Println(dbFeed)
+
+	return nil
+}
