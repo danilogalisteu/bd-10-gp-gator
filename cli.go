@@ -161,8 +161,6 @@ func handlerAddFeed(s *state, cmd command) error {
 
 	fmt.Printf("Feed has been added: %s\n", dbFeed.Name)
 
-	fmt.Println(dbFeed)
-
 	return nil
 }
 
