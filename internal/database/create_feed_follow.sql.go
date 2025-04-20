@@ -24,7 +24,7 @@ WITH inserted_feed_follow AS (
     )
     RETURNING id, created_at, updated_at, user_id, feed_id
 )
-SELECT inserted_feed_follow.id, inserted_feed_follow.created_at, inserted_feed_follow.updated_at, inserted_feed_follow.user_id, inserted_feed_follow.feed_id, users.name as user_name, feeds.name as feed_name
+SELECT inserted_feed_follow.id, inserted_feed_follow.created_at, inserted_feed_follow.updated_at, inserted_feed_follow.user_id, inserted_feed_follow.feed_id, users.name AS user_name, feeds.name AS feed_name
 FROM inserted_feed_follow
 INNER JOIN users ON user_id = users.id
 INNER JOIN feeds ON feed_id = feeds.id
