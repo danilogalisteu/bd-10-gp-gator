@@ -192,7 +192,7 @@ func handlerFeeds(s *state, cmd command) error {
 
 func handlerAddFollow(s *state, cmd command, dbUser database.User) error {
 	if len(cmd.args) != 1 {
-		return fmt.Errorf("follow command requires one arguments; provided %v", len(cmd.args))
+		return fmt.Errorf("follow command requires one argument; provided %v", len(cmd.args))
 	}
 
 	url := cmd.args[0]
@@ -231,6 +231,26 @@ func handlerFollowing(s *state, cmd command, dbUser database.User) error {
 	for _, dbFollow := range dbFollows {
 		fmt.Printf("Following '%s'\n", dbFollow.FeedName)
 	}
+
+	return nil
+}
+
+func handlerUnfollow(s *state, cmd command, dbUser database.User) error {
+	if len(cmd.args) != 1 {
+		return fmt.Errorf("unfollow command requires one argument; provided %v", len(cmd.args))
+	}
+
+	url := cmd.args[0]
+	err := s.db.DeleteFollow(context.Background(),
+		database.DeleteFollowParams{
+			UserID: dbUser.ID,
+			Url:    url,
+		})
+	if err != nil {
+		os.Exit(1)
+	}
+
+	fmt.Printf("Feed %s was unfollowed\n", url)
 
 	return nil
 }
