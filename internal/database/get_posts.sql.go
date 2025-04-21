@@ -14,8 +14,7 @@ import (
 const getPosts = `-- name: GetPosts :many
 SELECT posts.id, posts.created_at, posts.updated_at, posts.title, posts.url, posts.description, posts.published_at, posts.feed_id
 FROM posts
-LEFT JOIN feeds ON feed_id = feeds.id
-WHERE feeds.user_id = $1
+INNER JOIN feed_follows ON feed_follows.feed_id = posts.feed_id AND feed_follows.user_id = $1
 ORDER BY published_at DESC
 LIMIT $2
 `
