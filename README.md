@@ -93,4 +93,4 @@ The following commands are available in the application:
 * `gator follow URL`: follow existing feed (under logged user)
 * `gator following`: list followed feeds (under logged user)
 * `gator unfollow URL`: unfollow existing feed (under logged user)
-* `gator browse [LIMIT]`: list posts from user feeds (under logged user)
+* `gator browse [LIMIT]`: list posts from followed feeds (under logged user)
