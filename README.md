@@ -83,5 +83,14 @@ The file uses the JSON format and should be created manually with the following 
 
 The following commands are available in the application:
 
-```bash
-```
+* `gator register USERNAME`: add user
+* `gator reset`: remove all users
+* `gator login USERNAME`: log in existing user
+* `gator users`: list registered users
+* `gator agg DURATION`: refresh feeds periodically
+* `gator addfeed NAME URL`: add new feed and follow (under logged user)
+* `gator feeds`: list saved feeds
+* `gator follow URL`: follow existing feed (under logged user)
+* `gator following`: list followed feeds (under logged user)
+* `gator unfollow URL`: unfollow existing feed (under logged user)
+* `gator browse [LIMIT]`: list posts from user feeds (under logged user)
